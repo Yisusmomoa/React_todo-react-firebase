@@ -1,8 +1,12 @@
-import  React, {useState} from "react";
+import { collection, onSnapshot, query, QuerySnapshot } from "firebase/firestore";
+import  React, {useState, useEffect} from "react";
 import {AiOutlinePlus} from 'react-icons/ai'
 import Todo from "./components/todo/Todo";
+
+import { db } from "./firebase";
+
 const style={
-  bg:`h-screen w-screen p-4 bg-gradient-to-r from-[#2f80ED] to-[#1CB5E0]`,
+  bg:`h-screen w-screen   p-4 bg-gradient-to-r from-[#2f80ED] to-[#1CB5E0]`,
   container:`bg-slate-100 max-w-[500px] w-full m-auto rounded-md shadow-xl p-4`,
   heading:`text-3xl font-bold text-center text-gray-800 p-2`,
   form:`flex justify-between`,
@@ -12,8 +16,27 @@ const style={
 }
 
 function App() {
-  const [todos, setTodos]=useState(['Learn react', 'Grind code']);
+  const [todos, setTodos]=useState([]);
 
+
+
+  // Create Todo
+  // Read Todo from firebase
+  useEffect(()=>{
+    const q=query(collection(db, 'todos'))
+    const unsubscribe=onSnapshot(q, (querySnapshot)=>{
+      let todosArr=[];
+      querySnapshot.forEach((doc)=>{
+        todosArr.push({...doc.data(), id:doc.id});
+      });
+      setTodos(todosArr);
+    })
+    return ()=> unsubscribe();
+  }, [])
+  // Update Todo in firebase
+  // Delete todo in firebase
+
+  // Minuto 41
   return (
     <div className={style.bg}>
       <div className={style.container}> 
@@ -27,8 +50,8 @@ function App() {
 
         <ul>
           {
-            todos.map((todo, index)=>(
-              <Todo key={index} todo={todo}></Todo>
+            todos.map((todo)=>(
+              <Todo key={todo.id} todo={todo}></Todo>
             ))
           }
           
